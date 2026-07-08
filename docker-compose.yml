@@ -1,0 +1,87 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docunder_gateway
+    command: uvicorn serving.gateway.app.main:app --host 0.0.0.0 --port 8001 --reload
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./serving:/app/serving
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/invoices.db
+      - UPLOAD_DIR=/app/data/uploads
+      - VLM_BASE_URL=https://props-gory-overlay.ngrok-free.dev/v1
+      - VLM_MODEL=cyankiwi/Qwen3-VL-30B-A3B-Instruct-AWQ-4bit
+    restart: always
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docunder_dashboard
+    command: streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app/dashboard
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/invoices.db
+      - BACKEND_URL=http://gateway:8001
+      - UPLOAD_DIR=/app/data/uploads
+    depends_on:
+      - gateway
+    restart: always
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: docunder_prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: always
+
+  loki:
+    image: grafana/loki:latest
+    container_name: docunder_loki
+    volumes:
+      - ./monitoring/loki_config.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    restart: always
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: docunder_promtail
+    volumes:
+      - ./data/logs:/data/logs
+      - ./monitoring/promtail_config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: docunder_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana_datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./monitoring/grafana_dashboards_provision.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./monitoring/grafana_dashboards.json:/var/lib/grafana/dashboards/grafana_dashboards.json
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+      - loki
+    restart: always
+
+volumes:
+  data:
