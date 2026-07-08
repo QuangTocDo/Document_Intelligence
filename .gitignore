@@ -1,8 +1,5 @@
 # Python virtual environments
 .venv/
-venv/
-env/
-ENV/
 
 # Local configuration and credentials
 .env

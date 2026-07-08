@@ -468,12 +468,16 @@ elif menu == "🗂️ Quản lý Hoá đơn":
             
             with col_detail1:
                 if invoice_data["image_path"]:
-                    # Hiển thị ảnh từ static url của FastAPI
+                    # Tải ảnh từ API Gateway thông qua mạng Docker và hiển thị dưới dạng bytes
                     image_url = f"{BACKEND_URL}/static/uploads/{invoice_data['image_path']}"
                     try:
-                        st.image(image_url, caption=f"Ảnh Hoá Đơn ID {selected_id}", use_container_width=True)
-                    except Exception:
-                        st.error("Không thể load ảnh từ server.")
+                        img_resp = requests.get(image_url, headers=HEADERS, timeout=5)
+                        if img_resp.status_code == 200:
+                            st.image(img_resp.content, caption=f"Ảnh Hoá Đơn ID {selected_id}", use_container_width=True)
+                        else:
+                            st.error(f"Không thể tải ảnh từ server: HTTP {img_resp.status_code}")
+                    except Exception as e:
+                        st.error(f"Lỗi khi tải ảnh: {e}")
                 else:
                     st.info("Hoá đơn này không kèm ảnh.")
             

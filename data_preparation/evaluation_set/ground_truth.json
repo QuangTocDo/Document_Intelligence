@@ -1,0 +1,76 @@
+{
+  "img/BIL20240618060152.jpg": {
+    "invoice_number": "KAI0000340",
+    "invoice_date": "13/05/2024",
+    "tax_amount": 0,
+    "total_amount": 80.00,
+    "items": [
+      {
+        "description": "Waltz Of The Flowers",
+        "quantity": 1.0,
+        "unit_price": 12.00,
+        "total_price": 12.00
+      },
+      {
+        "description": "Windmill & Truck",
+        "quantity": 1.0,
+        "unit_price": 68.00,
+        "total_price": 68.00
+      }
+    ]
+  },
+  "img/BIL20240619105250.jpg": {
+    "invoice_number": "jav001269",
+    "invoice_date": null,
+    "tax_amount": 0.79,
+    "total_amount": 9.60,
+    "items": [
+      {
+        "description": "CURRY PUFF",
+        "quantity": 3.0,
+        "unit_price": 2.20,
+        "total_price": 6.60
+      },
+      {
+        "description": "PANDAN KAYA SQ",
+        "quantity": 1.0,
+        "unit_price": 3.00,
+        "total_price": 3.00
+      }
+    ]
+  },
+  "img/BIL20240702120637.jpg": {
+    "invoice_number": "BFB# 37112",
+    "invoice_date": "02-Jul-2024",
+    "tax_amount": 0.65,
+    "total_amount": 7.90,
+    "items": [
+      {
+        "description": "Green Onion Cream Cheese Bagel",
+        "quantity": 1.0,
+        "unit_price": 7.25,
+        "total_price": 7.25
+      }
+    ]
+  },
+  "img/BIL20240916122044.jpg": {
+    "invoice_number": "HD-PARC-2024916-192032",
+    "invoice_date": "16/09/2024",
+    "tax_amount": 0.0,
+    "total_amount": 299.000,
+    "items": [
+      {
+        "description": "LB72A002 1.178.000 Hàng giảm 70% không bảo hành",
+        "quantity": 1.0,
+        "unit_price": 299.000,
+        "total_price": 299.000
+      },
+      {
+        "description": "TUIMONGNHO 00 Hàng tặng không bảo hành",
+        "quantity": 1.0,
+        "unit_price": 0.0,
+        "total_price": 0.0
+      }
+    ]
+  }
+}

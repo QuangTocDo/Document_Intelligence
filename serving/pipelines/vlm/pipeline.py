@@ -2,10 +2,8 @@ import base64
 import json
 import logging
 import re
-import io
 from typing import Dict, Any, Optional
 from openai import OpenAI
-from PIL import Image
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from serving.pipelines.vlm.prompts import SYSTEM_PROMPT, USER_PROMPT
@@ -45,36 +43,6 @@ class InvoiceExtractionPipeline:
             
         return text
 
-    def compress_image(self, image_bytes: bytes, max_size: int = 1600, quality: int = 85) -> bytes:
-        """Co kích thước và nén ảnh hoá đơn để tối ưu hoá lượng token gửi đi."""
-        try:
-            img = Image.open(io.BytesIO(image_bytes))
-            # Chuyển đổi định dạng nếu có kênh alpha (JPEG không hỗ trợ RGBA/transparency)
-            if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
-                img = img.convert('RGB')
-            elif img.mode != 'RGB':
-                img = img.convert('RGB')
-                
-            width, height = img.size
-            if max(width, height) > max_size:
-                if width > height:
-                    new_width = max_size
-                    new_height = int(height * (max_size / width))
-                else:
-                    new_height = max_size
-                    new_width = int(width * (max_size / height))
-                logger.info(f"Resizing image from {width}x{height} to {new_width}x{new_height}")
-                img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-                
-            output = io.BytesIO()
-            img.save(output, format='JPEG', quality=quality)
-            compressed_bytes = output.getvalue()
-            logger.info(f"Compressed image size: {len(image_bytes)/1024:.1f}KB -> {len(compressed_bytes)/1024:.1f}KB")
-            return compressed_bytes
-        except Exception as e:
-            logger.warning(f"Failed to compress image, using original bytes: {e}")
-            return image_bytes
-
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -108,9 +76,8 @@ class InvoiceExtractionPipeline:
         )
 
     def extract_invoice(self, image_bytes: bytes) -> Dict[str, Any]:
-        """Trích xuất thông tin hoá đơn từ dữ liệu bytes của ảnh (nén trước khi gửi)."""
-        compressed_bytes = self.compress_image(image_bytes)
-        base64_image = self._encode_image_bytes(compressed_bytes)
+        """Trích xuất thông tin hoá đơn từ dữ liệu bytes gốc của ảnh từ người dùng gửi lên."""
+        base64_image = self._encode_image_bytes(image_bytes)
         
         raw_content = ""
         try:
