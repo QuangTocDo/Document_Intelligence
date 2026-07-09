@@ -73,10 +73,10 @@ graph TD
 Tạo tệp `.env` tại thư mục gốc của dự án với các cấu hình bảo mật:
 ```env
 # Cấu hình bảo mật API Key
-API_KEY=docunder_secret_token_2026
+API_KEY=api-key
 
 # Cấu hình VLM
-VLM_BASE_URL=https://props-gory-overlay.ngrok-free.dev/v1
+VLM_BASE_URL=http://localhost:8001/v1
 VLM_MODEL=cyankiwi/Qwen3-VL-30B-A3B-Instruct-AWQ-4bit
 VLM_API_KEY=none
 ```
